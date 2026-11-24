@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\HttpCache\Http\Middleware;
 
 use Closure;
-use CraftCms\Cms\HttpCache\ResponseTagger;
+use CraftCms\Cms\Http\ResponseCacheInfo;
 use FOS\HttpCache\TagHeaderFormatter\TagHeaderFormatter;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 readonly class SendTagHeader
 {
     public function __construct(
-        private ResponseTagger $tagger,
+        private ResponseCacheInfo $cacheInfo,
         private ?TagHeaderFormatter $formatter = null,
     ) {}
 
@@ -38,7 +38,7 @@ readonly class SendTagHeader
             return $response;
         }
 
-        $tags = $this->tagger->getTags();
+        $tags = $this->cacheInfo->getTags();
 
         if ($tags !== []) {
             $response->headers->set(

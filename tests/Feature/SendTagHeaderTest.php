@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Entry\Elements\Entry;
-use CraftCms\Cms\Support\Facades\ResponseTagger;
+use CraftCms\Cms\Support\Facades\ResponseCacheInfo;
 use FOS\HttpCache\TagHeaderFormatter\CommaSeparatedTagHeaderFormatter;
 use Illuminate\Support\Facades\Route;
 
@@ -20,9 +20,9 @@ beforeEach(function () {
 it('sends element tags and tags added in PHP and Twig', function () {
     Route::get('/page', function () {
         Entry::find()->id(123)->one();
-        ResponseTagger::addTags(['from-php']);
+        ResponseCacheInfo::addTags(['from-php']);
 
-        return response(renderString("{% do ResponseTagger.addTags(['from-twig']) %}ok"));
+        return response(renderString("{% do ResponseCacheInfo.addTags(['from-twig']) %}ok"));
     });
 
     $tags = explode(',', (string) $this->get('/page')->headers->get('Cache-Tag'));
@@ -34,7 +34,7 @@ it('uses the configured formatter', function () {
     config(['http-cache.tags.formatter_options' => ['headerName' => 'Surrogate-Key', 'glue' => ' ']]);
 
     Route::get('/page', function () {
-        ResponseTagger::addTags(['a', 'b']);
+        ResponseCacheInfo::addTags(['a', 'b']);
 
         return response('ok', headers: ['Surrogate-Key' => 'existing']);
     });
@@ -46,7 +46,7 @@ it('only tags eligible responses', function (string $method, string $uri, int $s
     $uri = $uri === 'cp' ? '/'.Cms::config()->cpTrigger.'/page' : $uri;
 
     Route::match(['GET', 'HEAD', 'POST'], $uri, function () use ($status) {
-        ResponseTagger::addTags(['page']);
+        ResponseCacheInfo::addTags(['page']);
 
         return response('ok', $status);
     });
@@ -64,11 +64,11 @@ it('sends no tag header without a formatter', function () {
     config(['http-cache.tags.formatter' => null]);
 
     Route::get('/page', function () {
-        ResponseTagger::addTags(['page']);
+        ResponseCacheInfo::addTags(['page']);
 
         return response('ok');
     });
 
     expect($this->get('/page')->headers->has('Cache-Tag'))->toBeFalse()
-        ->and(ResponseTagger::getTags())->toBe(['page']);
+        ->and(ResponseCacheInfo::getTags())->toBe(['page']);
 });
