@@ -11,7 +11,7 @@ use Override;
 /**
  * @method static \FOS\HttpCache\ProxyClient\ProxyClient client(?string $name = null)
  * @method static \FOS\HttpCache\CacheInvalidator invalidator(?string $name = null)
- * @method static int flush()
+ * @method static int sendInvalidations()
  * @method static HttpCacheManager extend(string $driver, \Closure $callback)
  *
  * @see HttpCacheManager

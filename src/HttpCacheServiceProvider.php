@@ -24,7 +24,7 @@ class HttpCacheServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../config/http-cache.php', 'http-cache');
 
-        $this->app->singletonIf(CachePolicy::class, DefaultCachePolicy::class);
+        $this->app->singletonIf(CacheProfile::class, DefaultCacheProfile::class);
         $this->app->singleton(HttpCacheManager::class, fn (Application $app) => new HttpCacheManager($app));
 
         $this->app->when(SendTagHeader::class)
@@ -38,11 +38,11 @@ class HttpCacheServiceProvider extends ServiceProvider
 
         Event::listen(ElementCachesInvalidated::class, InvalidateElementTags::class);
 
-        // Purges are queued and sent once, after the response, command or job that queued them.
-        $flush = fn () => $this->app->make(HttpCacheManager::class)->flush();
-        $this->app->terminating($flush);
+        // Invalidations are queued and sent once, after the response, command or job that queued them.
+        $sendInvalidations = fn () => $this->app->make(HttpCacheManager::class)->sendInvalidations();
+        $this->app->terminating($sendInvalidations);
         // Queue workers don't terminate between jobs.
-        Event::listen([JobProcessed::class, JobExceptionOccurred::class], $flush);
+        Event::listen([JobProcessed::class, JobExceptionOccurred::class], $sendInvalidations);
 
         /** @var HttpKernel $kernel */
         $kernel = $this->app->make(Kernel::class);

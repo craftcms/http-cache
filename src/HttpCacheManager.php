@@ -37,7 +37,7 @@ class HttpCacheManager extends MultipleInstanceManager
     }
 
     /**
-     * The invalidator for a client, which queues invalidations until it's flushed.
+     * The invalidator for a client, which queues invalidations until they're sent.
      */
     public function invalidator(?string $name = null): CacheInvalidator
     {
@@ -52,7 +52,7 @@ class HttpCacheManager extends MultipleInstanceManager
      *
      * @return int The number of invalidation requests sent.
      */
-    public function flush(): int
+    public function sendInvalidations(): int
     {
         $sent = 0;
 

@@ -13,10 +13,10 @@ use Symfony\Component\HttpFoundation\Response;
  * App-cache drivers call {@see isRequestCacheable()} before serving a hit and {@see isResponseCacheable()}
  * before storing. Edge drivers call {@see isResponseCacheable()} before adding their shared-cache header.
  * Binding your own implementation changes both rules, which have to agree, for every driver. A driver with stricter
- * rules of its own, such as an app cache that only stores HTML, uses its own class extending {@see DefaultCachePolicy}
+ * rules of its own, such as an app cache that only stores HTML, uses its own class extending {@see DefaultCacheProfile}
  * rather than rebinding this one.
  */
-interface CachePolicy
+interface CacheProfile
 {
     /**
      * Whether this request may be answered from the cache.

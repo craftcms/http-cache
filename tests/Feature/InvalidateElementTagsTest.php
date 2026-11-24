@@ -65,6 +65,6 @@ it('reports a failed purge instead of throwing', function () {
 
     event(new ElementCachesInvalidated(['element::5']));
 
-    expect(HttpCache::flush())->toBe(0)
+    expect(HttpCache::sendInvalidations())->toBe(0)
         ->and($reported)->not->toBeEmpty();
 });

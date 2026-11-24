@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use CraftCms\HttpCache\CachePolicy;
-use CraftCms\HttpCache\DefaultCachePolicy;
+use CraftCms\HttpCache\CacheProfile;
+use CraftCms\HttpCache\DefaultCacheProfile;
 
-it('binds the default cache policy', function () {
-    expect(app(CachePolicy::class))->toBeInstanceOf(DefaultCachePolicy::class);
+it('binds the default cache profile', function () {
+    expect(app(CacheProfile::class))->toBeInstanceOf(DefaultCacheProfile::class);
 });

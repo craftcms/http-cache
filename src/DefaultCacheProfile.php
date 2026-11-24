@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Symfony adds `private` to any response that doesn't say `public` or `s-maxage`, so `Response::isCacheable()`
  * also covers RFC 9111's rule for requests with `Authorization`.
  */
-class DefaultCachePolicy implements CachePolicy
+class DefaultCacheProfile implements CacheProfile
 {
     public function isRequestCacheable(Request $request): bool
     {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use CraftCms\HttpCache\DefaultCachePolicy;
+use CraftCms\HttpCache\DefaultCacheProfile;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 it('serves cached responses to safe requests, with or without cookies', function (string $method, array $cookies, bool $expected) {
     $request = Request::create('/', $method, cookies: $cookies);
 
-    expect(new DefaultCachePolicy()->isRequestCacheable($request))->toBe($expected);
+    expect(new DefaultCacheProfile()->isRequestCacheable($request))->toBe($expected);
 })->with([
     'GET' => ['GET', [], true],
     'HEAD' => ['HEAD', [], true],
@@ -19,7 +19,7 @@ it('serves cached responses to safe requests, with or without cookies', function
 ]);
 
 it('decides which responses may be stored', function (Closure $request, Closure $response, bool $expected) {
-    expect(new DefaultCachePolicy()->isResponseCacheable($request(), $response()))->toBe($expected);
+    expect(new DefaultCacheProfile()->isResponseCacheable($request(), $response()))->toBe($expected);
 })->with([
     'public with a lifetime' => [
         fn () => Request::create('/'),
