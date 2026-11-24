@@ -13,6 +13,7 @@ use FOS\HttpCache\ProxyClient\ProxyClient;
 use FOS\HttpCache\ProxyClient\Varnish;
 use Illuminate\Support\Arr;
 use Illuminate\Support\MultipleInstanceManager;
+use Throwable;
 
 /**
  * Builds the FOSHttpCache clients named in `config/http-cache.php`.
@@ -63,6 +64,9 @@ class HttpCacheManager extends MultipleInstanceManager
                 foreach ($exceptions as $exception) {
                     report($exception);
                 }
+            } catch (Throwable $exception) {
+                // Drivers registered with extend() may throw anything, such as Laravel's RequestException.
+                report($exception);
             }
         }
 

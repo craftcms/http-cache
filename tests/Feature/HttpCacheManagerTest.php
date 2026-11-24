@@ -5,6 +5,7 @@ declare(strict_types=1);
 use CraftCms\HttpCache\Facades\HttpCache;
 use FOS\HttpCache\Exception\ExceptionCollection;
 use FOS\HttpCache\ProxyClient\Noop;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -71,4 +72,26 @@ it('passes options to drivers registered with extend() without a driver key', fu
     HttpCache::extend('custom', fn ($app, array $config) => $config['soft_purge'] ? new Noop : null);
 
     expect(HttpCache::client('custom'))->toBeInstanceOf(Noop::class);
+});
+
+it('reports any exception a driver throws and still sends the other clients', function () {
+    Http::fake();
+    config(['http-cache.clients.broken' => ['driver' => 'broken']]);
+    HttpCache::extend('broken', fn () => new class extends Noop
+    {
+        public function flush(): int
+        {
+            throw new RuntimeException('Gateway down');
+        }
+    });
+    $reported = [];
+    app(ExceptionHandler::class)->reportable(function (Throwable $e) use (&$reported) {
+        $reported[] = $e->getMessage();
+    });
+
+    HttpCache::invalidator('broken')->invalidateTags(['a']);
+    HttpCache::invalidator('cloudflare')->invalidateTags(['a']);
+
+    expect(HttpCache::sendInvalidations())->toBe(1)
+        ->and($reported)->toBe(['Gateway down']);
 });
