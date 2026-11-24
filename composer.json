@@ -17,11 +17,12 @@
     ],
     "require": {
         "php": "^8.5",
-        "craftcms/cms": "^6.0.0-beta.1",
+        "craftcms/cms": "dev-timkelty/http-cache",
         "friendsofsymfony/http-cache": "^3.2",
         "php-http/guzzle7-adapter": "^1.1"
     },
     "require-dev": {
+        "craftcms/cms-assets": "6.x-dev as dev-timkelty/http-cache",
         "larastan/larastan": "^3.13",
         "laravel/pint": "^1.22",
         "orchestra/testbench": "^11.0",
