@@ -23,7 +23,7 @@ php artisan vendor:publish --tag=http-cache-config
 A driver, such as a CDN integration or a static cache, builds on these:
 
 - `HttpCache::invalidator()` queues invalidations by tag or URL for a client; `HttpCache::extend()` registers a driver. Queued invalidations are sent once with `HttpCache::sendInvalidations()`, after each request, console command and queued job.
-- When Craft invalidates element caches, the element tags go to every client in `http-cache.clients` that can invalidate by tag. A driver registered with `extend()` needs a client entry there to receive them, such as `'static-cache' => ['driver' => 'static-cache']`.
+- When Craft invalidates element caches, the element tags go to the default client and every client in `http-cache.clients` that can invalidate by tag. Any other client registered with `extend()` needs an entry there to receive them, such as `'static-cache' => []`.
 - `CacheProfile`, bound to `DefaultCacheProfile`, decides whether a request may be served from a cache (`isRequestCacheable()`) and whether a response may be stored (`isResponseCacheable()`). Check `isResponseCacheable()` before adding your own shared-cache header, such as `CDN-Cache-Control`, so `no-store`, `no-cache` and `private` responses don't get one.
 - `ResponseCacheInfo::getTags()` and `getExpiryDate()`, from Craft, give the response's tags and the earliest expiry of its elements, for drivers that keep their own index or lifetime.
 

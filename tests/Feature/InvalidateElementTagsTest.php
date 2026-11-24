@@ -5,6 +5,7 @@ declare(strict_types=1);
 use CraftCms\Cms\Element\Events\ElementCachesInvalidated;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\HttpCache\Facades\HttpCache;
+use FOS\HttpCache\ProxyClient\Noop;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\Facades\Http;
 
@@ -49,6 +50,26 @@ it('invalidates every client that supports tags, not just the default', function
     $zones = Http::recorded()->map(fn (array $pair) => explode('/', $pair[0]->url())[6] ?? null)->sort()->values()->all();
 
     expect($zones)->toBe(['second-zone', 'zone']);
+});
+
+it('invalidates the default client when it has no config entry', function () {
+    $client = new class extends Noop
+    {
+        public array $tags = [];
+
+        public function invalidateTags(array $tags): static
+        {
+            $this->tags = [...$this->tags, ...$tags];
+
+            return $this;
+        }
+    };
+    HttpCache::extend('custom', fn () => $client);
+    config(['http-cache.default' => 'custom']);
+
+    event(new ElementCachesInvalidated(['element::5']));
+
+    expect($client->tags)->toBe(['element::5']);
 });
 
 it('purges after each queued job', function () {

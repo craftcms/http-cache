@@ -33,8 +33,12 @@ readonly class InvalidateElementTags
             return;
         }
 
-        // Clients are named by their config keys, so a numeric key isn't a client.
-        foreach (array_filter(array_keys(config()->array('http-cache.clients', [])), is_string(...)) as $name) {
+        // Every configured client, plus the default, which a driver registered with `extend()` can be without a config
+        // entry. Clients are named by their config keys, so a numeric key isn't a client.
+        $names = array_filter(array_keys(config()->array('http-cache.clients', [])), is_string(...));
+        $names = array_unique([$this->httpCache->getDefaultInstance(), ...$names]);
+
+        foreach ($names as $name) {
             $invalidator = $this->httpCache->invalidator($name);
 
             if ($invalidator->supports(CacheInvalidator::TAGS)) {
