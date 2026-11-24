@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\HttpCache;
 
 use FOS\HttpCache\CacheInvalidator;
+use FOS\HttpCache\Exception\ExceptionCollection;
 use FOS\HttpCache\ProxyClient\Cloudflare;
 use FOS\HttpCache\ProxyClient\Fastly;
 use FOS\HttpCache\ProxyClient\Noop;
@@ -43,6 +44,29 @@ class HttpCacheManager extends MultipleInstanceManager
         $name ??= $this->getDefaultInstance();
 
         return $this->invalidators[$name] ??= new CacheInvalidator($this->client($name));
+    }
+
+    /**
+     * Sends every client's queued invalidations. A failed client is reported, not thrown, so one unreachable cache
+     * doesn't stop the others or fail the request, job or command that queued them.
+     *
+     * @return int The number of invalidation requests sent.
+     */
+    public function flush(): int
+    {
+        $sent = 0;
+
+        foreach ($this->invalidators as $invalidator) {
+            try {
+                $sent += $invalidator->flush();
+            } catch (ExceptionCollection $exceptions) {
+                foreach ($exceptions as $exception) {
+                    report($exception);
+                }
+            }
+        }
+
+        return $sent;
     }
 
     public function getDefaultInstance(): string

@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace CraftCms\HttpCache;
 
+use CraftCms\Cms\Element\Events\ElementCachesInvalidated;
 use CraftCms\HttpCache\Http\Middleware\SendTagHeader;
+use CraftCms\HttpCache\Listeners\InvalidateElementTags;
 use FOS\HttpCache\TagHeaderFormatter\TagHeaderFormatter;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Queue\Events\JobExceptionOccurred;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Override;
 
@@ -30,6 +35,14 @@ class HttpCacheServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([__DIR__.'/../config/http-cache.php' => config_path('http-cache.php')], 'http-cache-config');
+
+        Event::listen(ElementCachesInvalidated::class, InvalidateElementTags::class);
+
+        // Purges are queued and sent once, after the response, command or job that queued them.
+        $flush = fn () => $this->app->make(HttpCacheManager::class)->flush();
+        $this->app->terminating($flush);
+        // Queue workers don't terminate between jobs.
+        Event::listen([JobProcessed::class, JobExceptionOccurred::class], $flush);
 
         /** @var HttpKernel $kernel */
         $kernel = $this->app->make(Kernel::class);
