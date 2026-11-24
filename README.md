@@ -6,7 +6,7 @@ Craft collects the elements each response depends on with `ResponseCacheInfo`. T
 
 - **Clients:** named FOSHttpCache clients (Varnish, Fastly, Cloudflare, or your own through `HttpCache::extend()`) in `config/http-cache.php`, sent through Laravel's HTTP client.
 - **Tag header:** sends `ResponseCacheInfo`'s tags in the header your `tags.formatter` sets.
-- **Invalidation:** invalidates element tags when Craft invalidates element caches.
+- **Invalidation:** invalidates element tags on every client that supports tags when Craft invalidates element caches.
 - **`CacheProfile`:** decides what a cache may serve and store, for drivers.
 
 It plays the role [FOSHttpCacheBundle](https://github.com/FriendsOfSymfony/FOSHttpCacheBundle) plays for Symfony, built on the [FOSHttpCache](https://github.com/FriendsOfSymfony/FOSHttpCache) library.

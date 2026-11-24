@@ -35,6 +35,22 @@ it('purges invalidated element tags once the request ends', function () {
     expect(purgedTags())->toBe(['element::5', 'element::'.Entry::class.'::*']);
 });
 
+it('invalidates every client that supports tags, not just the default', function () {
+    Http::fake();
+    config(['http-cache.clients.second' => [
+        'driver' => 'cloudflare',
+        'authentication_token' => 'secret',
+        'zone_identifier' => 'second-zone',
+    ]]);
+
+    event(new ElementCachesInvalidated(['element::5']));
+    app()->terminate();
+
+    $zones = Http::recorded()->map(fn (array $pair) => explode('/', $pair[0]->url())[6] ?? null)->sort()->values()->all();
+
+    expect($zones)->toBe(['second-zone', 'zone']);
+});
+
 it('purges after each queued job', function () {
     Http::fake();
     config(['queue.default' => 'sync']);
