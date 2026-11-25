@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Entry\Elements\Entry;
-use CraftCms\Cms\Support\Facades\ResponseCacheInfo;
+use CraftCms\Cms\Support\Facades\CacheInfo;
 use FOS\HttpCache\TagHeaderFormatter\CommaSeparatedTagHeaderFormatter;
 use Illuminate\Support\Facades\Route;
 
@@ -20,9 +20,9 @@ beforeEach(function () {
 it('sends element tags and tags added in PHP and Twig', function () {
     Route::get('/page', function () {
         Entry::find()->id(123)->one();
-        ResponseCacheInfo::addTags(['from-php']);
+        CacheInfo::addTags(['from-php']);
 
-        return response(renderString("{% do ResponseCacheInfo.addTags(['from-twig']) %}ok"));
+        return response(renderString("{% do CacheInfo.addTags(['from-twig']) %}ok"));
     });
 
     $tags = explode(',', (string) $this->get('/page')->headers->get('Cache-Tag'));
@@ -34,7 +34,7 @@ it('uses the configured formatter', function () {
     config(['http-cache.tags.formatter_options' => ['headerName' => 'Surrogate-Key', 'glue' => ' ']]);
 
     Route::get('/page', function () {
-        ResponseCacheInfo::addTags(['a', 'b']);
+        CacheInfo::addTags(['a', 'b']);
 
         return response('ok', headers: ['Surrogate-Key' => 'existing']);
     });
@@ -46,7 +46,7 @@ it('only tags eligible responses', function (string $method, string $uri, int $s
     $uri = $uri === 'cp' ? '/'.Cms::config()->cpTrigger.'/page' : $uri;
 
     Route::match(['GET', 'HEAD', 'POST'], $uri, function () use ($status) {
-        ResponseCacheInfo::addTags(['page']);
+        CacheInfo::addTags(['page']);
 
         return response('ok', $status);
     });
@@ -65,7 +65,7 @@ it('sends no tag header without a formatter', function () {
 
     $tags = null;
     Route::get('/page', function () use (&$tags) {
-        $tags = ResponseCacheInfo::addTags(['page'])->getTags();
+        $tags = CacheInfo::addTags(['page'])->getTags();
 
         return response('ok');
     });

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\HttpCache\Http\Middleware;
 
 use Closure;
-use CraftCms\Cms\Http\ResponseCacheInfo;
+use CraftCms\Cms\Http\CacheInfo;
 use FOS\HttpCache\TagHeaderFormatter\TagHeaderFormatter;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 readonly class SendTagHeader
 {
     public function __construct(
-        private ResponseCacheInfo $cacheInfo,
+        private CacheInfo $cacheInfo,
         private ?TagHeaderFormatter $formatter = null,
     ) {}
 
