@@ -6,7 +6,7 @@ namespace CraftCms\HttpCache;
 
 use CraftCms\Cms\Element\Events\ElementCachesInvalidated;
 use CraftCms\HttpCache\Http\Middleware\SendTagHeader;
-use CraftCms\HttpCache\Listeners\InvalidateElementTags;
+use CraftCms\HttpCache\Listeners\InvalidateCacheTags;
 use FOS\HttpCache\TagHeaderFormatter\TagHeaderFormatter;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Http\Kernel;
@@ -36,7 +36,7 @@ class HttpCacheServiceProvider extends ServiceProvider
     {
         $this->publishes([__DIR__.'/../config/http-cache.php' => config_path('http-cache.php')], 'http-cache-config');
 
-        Event::listen(ElementCachesInvalidated::class, InvalidateElementTags::class);
+        Event::listen(ElementCachesInvalidated::class, InvalidateCacheTags::class);
 
         // Invalidations are queued and sent once, after the response, command or job that queued them.
         $sendInvalidations = fn () => $this->app->make(HttpCacheManager::class)->sendInvalidations();

@@ -6,8 +6,8 @@
  * Settings for the caches in front of Craft, such as a CDN or Varnish: how
  * response tags are sent, and the clients that invalidate them.
  *
- * When Craft invalidates element caches, the default client and every client
- * here that can invalidate by tag are sent the element tags. `default` names the client
+ * When Craft invalidates cache tags, the default client and every client here
+ * that can invalidate by tag are sent them. `default` names the client
  * `HttpCache::invalidator()` uses when none is named. Each client has a
  * `driver` (`noop`, `varnish`, `fastly`, `cloudflare`, or one registered with
  * `HttpCache::extend()`), optional `servers` and `base_uri` for sending

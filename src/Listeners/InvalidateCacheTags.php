@@ -10,14 +10,14 @@ use CraftCms\HttpCache\HttpCacheManager;
 use FOS\HttpCache\CacheInvalidator;
 
 /**
- * Invalidates the cached pages tagged with the elements whose caches Craft invalidated, on every client that can
- * invalidate by tag.
+ * Invalidates the cached pages tagged with the tags Craft invalidated, on every client that can invalidate by tag.
  *
- * The tags are the same ones Craft collects from element queries, so a page is invalidated when an element it showed,
- * or could have shown, changes. Drafts and revisions are skipped, because visitors never see them. Clients that can't
- * invalidate by tag are skipped too; a driver without tags handles element changes itself.
+ * Element tags are the same ones Craft collects from element queries, so a page is invalidated when an element it
+ * showed, or could have shown, changes. Custom tags, such as `nav`, come from `ElementCaches::invalidateTags()`.
+ * Invalidations for drafts and revisions are skipped, because visitors never see them. Clients that can't invalidate
+ * by tag are skipped too; a driver without tags handles element changes itself.
  */
-readonly class InvalidateElementTags
+readonly class InvalidateCacheTags
 {
     public function __construct(
         private HttpCacheManager $httpCache,
