@@ -63,12 +63,13 @@ it('only tags eligible responses', function (string $method, string $uri, int $s
 it('sends no tag header without a formatter', function () {
     config(['http-cache.tags.formatter' => null]);
 
-    Route::get('/page', function () {
-        ResponseCacheInfo::addTags(['page']);
+    $tags = null;
+    Route::get('/page', function () use (&$tags) {
+        $tags = ResponseCacheInfo::addTags(['page'])->getTags();
 
         return response('ok');
     });
 
     expect($this->get('/page')->headers->has('Cache-Tag'))->toBeFalse()
-        ->and(ResponseCacheInfo::getTags())->toBe(['page']);
+        ->and($tags)->toBe(['page']);
 });
